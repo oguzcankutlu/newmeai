@@ -8,12 +8,31 @@ export const config = {
     },
 };
 
+function getEnvOrThrow(res) {
+    const API_KEY = process.env.WIRO_API_KEY;
+    const API_SECRET = process.env.WIRO_API_SECRET;
+    if (!API_KEY || !API_SECRET) {
+        res.status(500).json({
+            error: 'Server misconfigured: missing WIRO_API_KEY/WIRO_API_SECRET environment variables'
+        });
+        return null;
+    }
+    return { API_KEY, API_SECRET };
+}
+
+function base64ToBuffer(dataUrlOrBase64) {
+    const base64 = typeof dataUrlOrBase64 === 'string' && dataUrlOrBase64.includes(',')
+        ? dataUrlOrBase64.split(',')[1]
+        : dataUrlOrBase64;
+    return Buffer.from(base64, 'base64');
+}
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    // API BİLGİLERİ
-    const API_KEY = 'wmmxuwnx6lvh1bhvn4s9vck8boamwjnx';
-    const API_SECRET = '1416f0aeaa653afd1135617cd72667991a212024397e16bd78b0f3931146934d';
+    const creds = getEnvOrThrow(res);
+    if (!creds) return;
+    const { API_KEY, API_SECRET } = creds;
 
     try {
         const { imageBase64, maskBase64, prompt } = req.body;
@@ -23,11 +42,11 @@ export default async function handler(req, res) {
         }
 
         // Base64 temizle ve Buffer yap
-        const imgBuffer = Buffer.from(imageBase64.split(',')[1], 'base64');
-        const maskBuffer = Buffer.from(maskBase64.split(',')[1], 'base64');
+        const imgBuffer = base64ToBuffer(imageBase64);
+        const maskBuffer = base64ToBuffer(maskBase64);
 
         // Multipart Body oluştur (Manuel, çünkü Vercel'de external lib kullanmak istemiyoruz)
-        const boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW';
+        const boundary = '----WebKitFormBoundary' + crypto.randomBytes(16).toString('hex');
         let bodyParts = [];
 
         // Input Image
@@ -42,7 +61,7 @@ export default async function handler(req, res) {
 
         // Diğer Parametreler
         const params = {
-            prompt: prompt,
+            prompt: typeof prompt === 'string' ? prompt : '',
             width: '1024',
             height: '1024',
             guidance: '25',
