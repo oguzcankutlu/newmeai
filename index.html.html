@@ -114,6 +114,7 @@
     </div>
 
     <script>
+       <script>
         // Değişkenler
         let uploadedFile, uploadedBase64;
         let selectedTone, selectedShape;
@@ -171,7 +172,9 @@
             });
         });
 
-        // GENERATE BUTONU
+        // ==========================================
+        // DÜZELTİLMİŞ GENERATE FONKSİYONU (HATA BURADAYDI)
+        // ==========================================
         generateBtn.onclick = async () => {
             loading.classList.add('active');
             
@@ -179,7 +182,7 @@
                 // 1. Maske Oluştur
                 const maskBase64 = await createSimpleMask(uploadedBase64);
                 
-                // 2. Backend'e İstek At (Generate)
+                // 2. Backend'e İstek At
                 const prompt = `A professional dental smile transformation. ${selectedTone === 'natural' ? 'Natural ivory teeth' : 'Bright white Hollywood smile'}. ${selectedShape === 'natural' ? 'Organic tooth shape' : 'Perfect veneer alignment'}. Photorealistic.`;
                 
                 const res = await fetch('/api/generate', {
@@ -192,10 +195,29 @@
                     })
                 });
                 
-                const data = await res.json();
-                if(!res.ok) throw new Error(data.error || 'Sunucu hatası');
+                // Cevabı metin olarak alıp kontrol edelim (JSON hatası olmasın)
+                const responseText = await res.text();
+                let data;
                 
-                // 3. Task ID ile Sonucu Bekle (Status Loop)
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error("Sunucu JSON döndürmedi: " + responseText.substring(0, 50) + "...");
+                }
+
+                // API'den hata döndüyse fırlat
+                if(!res.ok || data.error) {
+                    throw new Error(data.error || data.message || 'Sunucu hatası');
+                }
+                
+                // HATA BURADAYDI: tasklist kontrolü yapmadan okumaya çalışıyorduk
+                if (!data.tasklist || !data.tasklist[0]) {
+                    console.log("Hatalı API Cevabı:", data);
+                    // Hatanın detayını kullanıcıya gösterelim
+                    throw new Error("API Beklenmeyen Cevap Döndürdü: " + JSON.stringify(data));
+                }
+                
+                // 3. Task ID Başarılıysa Devam Et
                 const taskUuid = data.tasklist[0].uuid;
                 console.log("Task ID:", taskUuid);
                 
@@ -203,9 +225,8 @@
                 
                 // 4. Sonucu Göster
                 document.getElementById('beforeImage').src = uploadedBase64;
-                document.getElementById('afterImage').src = resultUrl; // URL'i direkt src'ye veriyoruz
+                document.getElementById('afterImage').src = resultUrl;
                 
-                // İndirme butonunu ayarla
                 document.getElementById('downloadBtn').onclick = () => {
                     const link = document.createElement('a');
                     link.href = resultUrl;
@@ -218,34 +239,38 @@
 
             } catch (err) {
                 loading.classList.remove('active');
-                alert("Hata oluştu: " + err.message);
+                // Hatayı alert kutusunda göster ki telefonda da görebilelim
+                alert("HATA: " + err.message);
                 console.error(err);
             }
         };
 
         // Yardımcı Fonksiyon: Status Kontrolü
         async function checkStatus(taskId) {
-            for(let i=0; i<45; i++) { // ~90 saniye dene
-                await new Promise(r => setTimeout(r, 2000)); // 2sn bekle
+            for(let i=0; i<45; i++) { 
+                await new Promise(r => setTimeout(r, 2000));
                 
                 const res = await fetch(`/api/status?taskId=${taskId}`);
-                if(!res.ok) continue; // Hata varsa tekrar dene
+                if(!res.ok) continue;
                 
                 const data = await res.json();
+                
+                // Eğer status cevabı da hatalıysa
+                if(!data.tasklist || !data.tasklist[0]) continue;
+
                 const task = data.tasklist[0];
                 
                 if(task.status === 'task_postprocess_end') {
-                    return task.parameters.outputImage; // Resim URL'ini dön
+                    return task.parameters.outputImage;
                 }
                 
                 if(task.status.includes('fail') || task.status.includes('error')) {
-                    throw new Error('İşlem başarısız: ' + task.status);
+                    throw new Error('İşlem başarısız: ' + (task.debugerror || task.status));
                 }
             }
             throw new Error('Zaman aşımı.');
         }
 
-        // Yardımcı Fonksiyon: Basit Maske
         function createSimpleMask(base64) {
             return new Promise(resolve => {
                 const img = new Image();
@@ -254,16 +279,12 @@
                     canvas.width = img.width;
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
-                    
                     ctx.fillStyle = 'black';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Ağız bölgesi tahmini (Basit dikdörtgen)
                     const w = img.width * 0.4;
                     const h = img.height * 0.15;
                     const x = (img.width - w) / 2;
                     const y = img.height * 0.62;
-                    
                     ctx.fillStyle = 'white';
                     ctx.fillRect(x, y, w, h);
                     resolve(canvas.toDataURL('image/png'));
@@ -271,6 +292,7 @@
                 img.src = base64;
             });
         }
+    </script>
     </script>
 </body>
 </html>
