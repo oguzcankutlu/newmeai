@@ -1,11 +1,23 @@
 import crypto from 'crypto';
 
+function getEnvOrThrow(res) {
+    const API_KEY = process.env.WIRO_API_KEY;
+    const API_SECRET = process.env.WIRO_API_SECRET;
+    if (!API_KEY || !API_SECRET) {
+        res.status(500).json({
+            error: 'Server misconfigured: missing WIRO_API_KEY/WIRO_API_SECRET environment variables'
+        });
+        return null;
+    }
+    return { API_KEY, API_SECRET };
+}
+
 export default async function handler(req, res) {
     const { taskId } = req.query;
     
-    // API BİLGİLERİ
-    const API_KEY = 'wmmxuwnx6lvh1bhvn4s9vck8boamwjnx';
-    const API_SECRET = '1416f0aeaa653afd1135617cd72667991a212024397e16bd78b0f3931146934d';
+    const creds = getEnvOrThrow(res);
+    if (!creds) return;
+    const { API_KEY, API_SECRET } = creds;
 
     if (!taskId) return res.status(400).json({ error: 'Task ID gerekli' });
 
