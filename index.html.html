@@ -3,275 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The New Me - Gülüş Simülasyonu</title>
+    <title>The New Me - Gülüş Tasarımı</title>
     <style>
+        /* --- TASARIM (CSS) --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #F8FAFC 0%, #e8ecf1 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); overflow: hidden; }
-        .header { background: white; padding: 30px 40px; border-bottom: 1px solid #e8ecf1; }
-        .brand-name { font-size: 24px; font-weight: 700; color: #1a1a2e; }
-        .content { padding: 40px; }
-        .screen { display: none; }
-        .screen.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: center; }
         
-        /* Upload Area */
-        .upload-area { border: 3px dashed #cbd5e1; border-radius: 16px; padding: 50px; text-align: center; cursor: pointer; background: #f8fafc; margin-bottom: 20px; transition: all 0.3s; }
-        .upload-area:hover { border-color: #E31E24; background: #FEF2F2; }
-        .upload-area.has-file { border-color: #10b981; background: #f0fdf4; }
-        .preview-image { max-width: 100%; max-height: 300px; border-radius: 12px; margin: 20px auto; display: none; }
-        .preview-image.visible { display: block; }
-        
-        /* Buttons */
-        .btn { padding: 16px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
-        .btn-primary { background: #E31E24; color: white; }
-        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; }
-        .btn-secondary { background: white; color: #E31E24; border: 2px solid #E31E24; }
+        .container { 
+            width: 100%; max-width: 600px; background: white; 
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            overflow: hidden; position: relative;
+        }
 
-        /* Options */
-        .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .option-btn { padding: 20px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; cursor: pointer; }
-        .option-btn.selected { border-color: #E31E24; background: #FEF2F2; font-weight: bold; }
-        
-        /* Results */
-        .result-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .result-image { width: 100%; border-radius: 8px; }
-        
-        /* Loading */
-        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 999; }
-        .loading-overlay.active { display: flex; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #fff; border-top-color: #E31E24; border-radius: 50%; animation: spin 1s infinite; margin-bottom: 20px; }
+        .header { background: white; padding: 20px; text-align: center; border-bottom: 1px solid #eee; }
+        .brand { font-size: 24px; font-weight: 800; color: #333; letter-spacing: -1px; }
+
+        .screen { display: none; padding: 30px; animation: fadeIn 0.4s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Yükleme Kutusu */
+        .upload-box { 
+            border: 3px dashed #cbd5e1; border-radius: 16px; padding: 40px 20px; 
+            text-align: center; cursor: pointer; transition: 0.3s; background: #f8fafc;
+        }
+        .upload-box:hover { border-color: #E31E24; background: #fff5f5; }
+        .upload-box.has-file { border-color: #10b981; background: #ecfdf5; }
+        .upload-icon { font-size: 48px; margin-bottom: 10px; display: block; }
+
+        /* Resim Önizleme */
+        .preview-container { margin-top: 20px; border-radius: 12px; overflow: hidden; display: none; }
+        .preview-container img { width: 100%; display: block; }
+
+        /* Seçenekler */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .option-card { 
+            padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; 
+            text-align: center; cursor: pointer; transition: 0.2s; background: white;
+        }
+        .option-card:hover { border-color: #cbd5e1; }
+        .option-card.selected { border-color: #E31E24; background: #fff5f5; font-weight: bold; color: #E31E24; }
+
+        /* Butonlar */
+        .btn { 
+            width: 100%; padding: 16px; border: none; border-radius: 12px; 
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px;
+        }
+        .btn-primary { background: #E31E24; color: white; }
+        .btn-primary:hover { background: #c0151a; transform: translateY(-2px); }
+        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: white; color: #64748b; border: 2px solid #e2e8f0; }
+        .btn-secondary:hover { background: #f1f5f9; color: #334155; }
+
+        /* Loading Overlay */
+        .loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 4px solid #e2e8f0; 
+            border-top-color: #E31E24; border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        .download-btn { background: #10b981; color: white; }
+        .download-btn:hover { background: #059669; }
     </style>
 </head>
 <body>
+
     <div class="container">
         <div class="header">
-            <div class="brand-name">The New Me</div>
+            <div class="brand">The New Me ✨</div>
         </div>
 
-        <div class="content">
-            <div id="screen1" class="screen active">
-                <h1>Fotoğraf Yükle</h1>
-                <p style="color:#666; margin-bottom:20px">Gülüşünü değiştirmek için fotoğrafını yükle.</p>
-                
-                <div id="uploadArea" class="upload-area">
-                    <div style="font-size:40px">📸</div>
-                    <div>Fotoğraf Seçmek İçin Tıkla</div>
-                    <input type="file" id="fileInput" accept="image/*" style="display:none">
-                </div>
-                <img id="previewImage" class="preview-image">
-                
-                <label style="display:flex; gap:10px; align-items:center; margin: 20px 0;">
-                    <input type="checkbox" id="consentCheckbox"> 
-                    <span>Fotoğrafımın işlenmesini kabul ediyorum.</span>
-                </label>
-                
-                <button id="nextBtn1" class="btn btn-primary" disabled>İleri →</button>
+        <div id="screen1" class="screen active">
+            <h2 style="margin-bottom: 10px; color:#1e293b;">Fotoğrafını Yükle</h2>
+            <p style="color:#64748b; margin-bottom: 25px; font-size: 14px;">Net ve aydınlık bir yüz fotoğrafı seçin.</p>
+            
+            <div id="uploadBox" class="upload-box">
+                <span class="upload-icon">📸</span>
+                <div id="uploadText" style="font-weight:600; color:#475569;">Fotoğraf Seçmek İçin Tıkla</div>
+                <input type="file" id="fileInput" accept="image/*" style="display:none">
             </div>
 
-            <div id="screen2" class="screen">
-                <h1>Stilini Seç</h1>
-                
-                <h3 style="margin: 20px 0 10px;">Diş Tonu</h3>
-                <div class="options-row">
-                    <div class="option-btn" data-type="tone" data-value="natural">Doğal Ton 🤎</div>
-                    <div class="option-btn" data-type="tone" data-value="bright">Hollywood Beyazı ✨</div>
-                </div>
-
-                <h3 style="margin: 20px 0 10px;">Diş Şekli</h3>
-                <div class="options-row">
-                    <div class="option-btn" data-type="shape" data-value="natural">Doğal Şekil 🔲</div>
-                    <div class="option-btn" data-type="shape" data-value="perfect">Kusursuz Dizilim ⭐</div>
-                </div>
-
-                <button id="generateBtn" class="btn btn-primary" disabled>Gülüş Oluştur 🎨</button>
-                <button onclick="switchScreen(1)" class="btn btn-secondary">← Geri Dön</button>
+            <div id="previewContainer" class="preview-container">
+                <img id="previewImage">
             </div>
 
-            <div id="screen3" class="screen">
-                <h1>Sonuçlar</h1>
-                <div class="result-container">
-                    <div>
-                        <div style="text-align:center; margin-bottom:5px; font-weight:bold">ÖNCE</div>
-                        <img id="beforeImage" class="result-image">
-                    </div>
-                    <div>
-                        <div style="text-align:center; margin-bottom:5px; font-weight:bold; color:#E31E24">SONRA</div>
-                        <img id="afterImage" class="result-image">
-                    </div>
+            <label style="display:flex; align-items:center; gap:10px; margin: 20px 0; cursor:pointer;">
+                <input type="checkbox" id="consentCheck" style="width:18px; height:18px;">
+                <span style="font-size:14px; color:#475569;">Fotoğrafımın işlenmesini onaylıyorum.</span>
+            </label>
+
+            <button id="btnNext" class="btn btn-primary" disabled>İleri Devam Et →</button>
+        </div>
+
+        <div id="screen2" class="screen">
+            <h2 style="margin-bottom: 20px; color:#1e293b;">Tarzını Seç</h2>
+            
+            <h4 style="margin-bottom: 10px; color:#64748b;">Diş Tonu</h4>
+            <div class="options-grid">
+                <div class="option-card" onclick="selectOption('tone', 'natural', this)">
+                    <div style="font-size:24px; margin-bottom:5px">🤎</div>
+                    Doğal Ton
                 </div>
-                <button id="downloadBtn" class="btn btn-primary">Resmi İndir 💾</button>
-                <button onclick="location.reload()" class="btn btn-secondary">Baştan Başla 🔄</button>
+                <div class="option-card" onclick="selectOption('tone', 'bright', this)">
+                    <div style="font-size:24px; margin-bottom:5px">✨</div>
+                    Hollywood Beyazı
+                </div>
             </div>
+
+            <h4 style="margin-bottom: 10px; color:#64748b;">Diş Şekli</h4>
+            <div class="options-grid">
+                <div class="option-card" onclick="selectOption('shape', 'natural', this)">
+                    <div style="font-size:24px; margin-bottom:5px">🍃</div>
+                    Doğal Yapı
+                </div>
+                <div class="option-card" onclick="selectOption('shape', 'perfect', this)">
+                    <div style="font-size:24px; margin-bottom:5px">⭐</div>
+                    Kusursuz Dizilim
+                </div>
+            </div>
+
+            <button id="btnGenerate" class="btn btn-primary" disabled>Gülüşümü Tasarla 🎨</button>
+            <button onclick="showScreen(1)" class="btn btn-secondary">← Geri Dön</button>
+        </div>
+
+        <div id="screen3" class="screen">
+            <h2 style="margin-bottom: 20px; color:#1e293b; text-align:center;">İşte Yeni Gülüşün! 🎉</h2>
+            
+            <div style="border-radius:12px; overflow:hidden; margin-bottom:20px; border: 2px solid #eee;">
+                <img id="resultImage" style="width:100%; display:block;">
+            </div>
+
+            <button id="btnDownload" class="btn download-btn">Resmi İndir 💾</button>
+            <button onclick="location.reload()" class="btn btn-secondary">Baştan Başla 🔄</button>
         </div>
     </div>
 
-    <div id="loadingOverlay" class="loading-overlay">
+    <div id="loader" class="loader">
         <div class="spinner"></div>
-        <h2>Gülüşün Tasarlanıyor...</h2>
-        <p>Bu işlem yaklaşık 1 dakika sürebilir.</p>
+        <h3 id="loadingText" style="color:#333;">İşleniyor...</h3>
+        <p style="color:#666; font-size:14px; margin-top:5px;">Lütfen sayfayı kapatmayın.</p>
     </div>
 
     <script>
-       <script>
-        // Değişkenler
-        let uploadedFile, uploadedBase64;
-        let selectedTone, selectedShape;
+        // --- DEĞİŞKENLER ---
+        let finalImageBase64 = null;
+        let selectedTone = null;
+        let selectedShape = null;
 
-        // Elementler
-        const screens = document.querySelectorAll('.screen');
-        const uploadArea = document.getElementById('uploadArea');
+        // --- ELEMENTLER ---
+        const uploadBox = document.getElementById('uploadBox');
         const fileInput = document.getElementById('fileInput');
-        const previewImage = document.getElementById('previewImage');
-        const nextBtn1 = document.getElementById('nextBtn1');
-        const generateBtn = document.getElementById('generateBtn');
-        const consentCheckbox = document.getElementById('consentCheckbox');
-        const loading = document.getElementById('loadingOverlay');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImg = document.getElementById('previewImage');
+        const consentCheck = document.getElementById('consentCheck');
+        const btnNext = document.getElementById('btnNext');
+        const btnGenerate = document.getElementById('btnGenerate');
+        const loader = document.getElementById('loader');
 
-        // Ekran Değiştirme
-        function switchScreen(n) {
-            screens.forEach(s => s.classList.remove('active'));
-            document.getElementById(`screen${n}`).classList.add('active');
-        }
+        // --- 1. TIKLAMA SORUNUNU ÇÖZEN KOD ---
+        uploadBox.addEventListener('click', () => {
+            fileInput.click(); // Kutucuğa basınca input açılsın
+        });
 
-        // Dosya Yükleme
-        uploadArea.addEventListener('click', () => fileInput.click());
+        // --- 2. DOSYA SEÇME VE KÜÇÜLTME ---
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if(!file) return;
-            uploadedFile = file;
-            
+            if (!file) return;
+
+            // Loader aç
+            loader.style.display = 'flex';
+            document.getElementById('loadingText').innerText = "Fotoğraf Hazırlanıyor...";
+
             const reader = new FileReader();
-            reader.onload = (e) => {
-                uploadedBase64 = e.target.result;
-                previewImage.src = uploadedBase64;
-                previewImage.classList.add('visible');
-                uploadArea.classList.add('has-file');
-                checkScreen1();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Canvas ile yeniden boyutlandırma (Max 1024px)
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxSize = 1024;
+
+                    if (width > height) {
+                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+                    } else {
+                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Sıkıştırılmış JPEG (0.85 kalite)
+                    finalImageBase64 = canvas.toDataURL('image/jpeg', 0.85);
+
+                    // Önizlemeyi göster
+                    previewImg.src = finalImageBase64;
+                    previewContainer.style.display = 'block';
+                    uploadBox.classList.add('has-file');
+                    document.getElementById('uploadText').innerText = "Fotoğrafı Değiştir";
+                    
+                    loader.style.display = 'none';
+                    checkValidation();
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
 
-        consentCheckbox.addEventListener('change', checkScreen1);
-        function checkScreen1() {
-            nextBtn1.disabled = !(uploadedFile && consentCheckbox.checked);
+        // --- 3. DOĞRULAMA KONTROLÜ ---
+        consentCheck.addEventListener('change', checkValidation);
+
+        function checkValidation() {
+            // Hem resim var mı hem onay verilmiş mi?
+            if (finalImageBase64 && consentCheck.checked) {
+                btnNext.disabled = false;
+            } else {
+                btnNext.disabled = true;
+            }
         }
-        nextBtn1.onclick = () => switchScreen(2);
 
-        // Seçimler
-        document.querySelectorAll('.option-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const type = btn.dataset.type;
-                document.querySelectorAll(`[data-type="${type}"]`).forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                
-                if(type === 'tone') selectedTone = btn.dataset.value;
-                if(type === 'shape') selectedShape = btn.dataset.value;
-                generateBtn.disabled = !(selectedTone && selectedShape);
-            });
-        });
+        // --- 4. EKRAN GEÇİŞLERİ ---
+        function showScreen(n) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen' + n).classList.add('active');
+        }
+        
+        btnNext.addEventListener('click', () => showScreen(2));
 
-        // ==========================================
-        // DÜZELTİLMİŞ GENERATE FONKSİYONU (HATA BURADAYDI)
-        // ==========================================
-        generateBtn.onclick = async () => {
-            loading.classList.add('active');
-            
+        // --- 5. SEÇENEK İŞLEMLERİ ---
+        window.selectOption = function(type, value, el) {
+            // Görsel seçim efekti
+            el.parentElement.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+
+            // Değerleri ata
+            if (type === 'tone') selectedTone = value;
+            if (type === 'shape') selectedShape = value;
+
+            // Butonu aktif et
+            if (selectedTone && selectedShape) {
+                btnGenerate.disabled = false;
+            }
+        };
+
+        // --- 6. GÜLÜŞ OLUŞTURMA (GENERATE) ---
+        btnGenerate.addEventListener('click', async () => {
+            loader.style.display = 'flex';
+            document.getElementById('loadingText').innerText = "Yapay Zeka Çalışıyor...";
+
             try {
-                // 1. Maske Oluştur
-                const maskBase64 = await createSimpleMask(uploadedBase64);
+                // Maske oluştur
+                const maskBase64 = await createSimpleMask(finalImageBase64);
                 
-                // 2. Backend'e İstek At
-                const prompt = `A professional dental smile transformation. ${selectedTone === 'natural' ? 'Natural ivory teeth' : 'Bright white Hollywood smile'}. ${selectedShape === 'natural' ? 'Organic tooth shape' : 'Perfect veneer alignment'}. Photorealistic.`;
-                
+                // Prompt hazırla
+                const prompt = `Professional dental photography, ${selectedTone === 'bright' ? 'extremely bright white teeth, hollywood smile' : 'natural ivory teeth color'}, ${selectedShape === 'perfect' ? 'perfectly aligned veneers' : 'natural tooth shape'}, photorealistic, 8k, high detail face.`;
+
+                // Backend'e istek at
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        imageBase64: uploadedBase64,
+                        imageBase64: finalImageBase64,
                         maskBase64: maskBase64,
                         prompt: prompt
                     })
                 });
-                
-                // Cevabı metin olarak alıp kontrol edelim (JSON hatası olmasın)
-                const responseText = await res.text();
+
+                // JSON Yanıtı Kontrolü
                 let data;
-                
                 try {
-                    data = JSON.parse(responseText);
-                } catch (e) {
-                    throw new Error("Sunucu JSON döndürmedi: " + responseText.substring(0, 50) + "...");
+                    data = await res.json();
+                } catch(e) {
+                    throw new Error("Sunucudan geçersiz yanıt geldi.");
                 }
 
-                // API'den hata döndüyse fırlat
-                if(!res.ok || data.error) {
-                    throw new Error(data.error || data.message || 'Sunucu hatası');
-                }
-                
-                // HATA BURADAYDI: tasklist kontrolü yapmadan okumaya çalışıyorduk
-                if (!data.tasklist || !data.tasklist[0]) {
-                    console.log("Hatalı API Cevabı:", data);
-                    // Hatanın detayını kullanıcıya gösterelim
-                    throw new Error("API Beklenmeyen Cevap Döndürdü: " + JSON.stringify(data));
-                }
-                
-                // 3. Task ID Başarılıysa Devam Et
-                const taskUuid = data.tasklist[0].uuid;
-                console.log("Task ID:", taskUuid);
-                
-                const resultUrl = await checkStatus(taskUuid);
-                
-                // 4. Sonucu Göster
-                document.getElementById('beforeImage').src = uploadedBase64;
-                document.getElementById('afterImage').src = resultUrl;
-                
-                document.getElementById('downloadBtn').onclick = () => {
+                if(!res.ok) throw new Error(data.error || "Sunucu hatası oluştu.");
+                if(!data.tasklist || !data.tasklist[0]) throw new Error("Task ID alınamadı.");
+
+                const taskId = data.tasklist[0].uuid;
+                console.log("Task Başladı:", taskId);
+
+                // Sonucu Bekle (Polling)
+                const resultUrl = await pollStatus(taskId);
+
+                // Sonucu Göster
+                const resultImg = document.getElementById('resultImage');
+                resultImg.src = resultUrl;
+
+                // İndirme Butonunu Ayarla
+                document.getElementById('btnDownload').onclick = () => {
                     const link = document.createElement('a');
                     link.href = resultUrl;
                     link.download = 'yeni-gulusum.png';
                     link.click();
                 };
 
-                loading.classList.remove('active');
-                switchScreen(3);
+                loader.style.display = 'none';
+                showScreen(3);
 
             } catch (err) {
-                loading.classList.remove('active');
-                // Hatayı alert kutusunda göster ki telefonda da görebilelim
+                loader.style.display = 'none';
                 alert("HATA: " + err.message);
                 console.error(err);
             }
-        };
+        });
 
-        // Yardımcı Fonksiyon: Status Kontrolü
-        async function checkStatus(taskId) {
-            for(let i=0; i<45; i++) { 
-                await new Promise(r => setTimeout(r, 2000));
-                
-                const res = await fetch(`/api/status?taskId=${taskId}`);
-                if(!res.ok) continue;
-                
-                const data = await res.json();
-                
-                // Eğer status cevabı da hatalıysa
-                if(!data.tasklist || !data.tasklist[0]) continue;
+        // --- YARDIMCI FONKSİYONLAR ---
 
-                const task = data.tasklist[0];
-                
-                if(task.status === 'task_postprocess_end') {
-                    return task.parameters.outputImage;
-                }
-                
-                if(task.status.includes('fail') || task.status.includes('error')) {
-                    throw new Error('İşlem başarısız: ' + (task.debugerror || task.status));
-                }
-            }
-            throw new Error('Zaman aşımı.');
-        }
-
-        function createSimpleMask(base64) {
+        // Maske Oluşturucu
+        function createSimpleMask(imgSrc) {
             return new Promise(resolve => {
                 const img = new Image();
                 img.onload = () => {
@@ -279,20 +328,56 @@
                     canvas.width = img.width;
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
+                    
+                    // Siyah Zemin
                     ctx.fillStyle = 'black';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    const w = img.width * 0.4;
+                    
+                    // Beyaz Kutu (Ağız Bölgesi Tahmini)
+                    // Yüzün alt %38'lik kısmına, %40 genişliğinde kutu
+                    const w = img.width * 0.40; 
                     const h = img.height * 0.15;
                     const x = (img.width - w) / 2;
-                    const y = img.height * 0.62;
+                    const y = img.height * 0.62; 
+                    
                     ctx.fillStyle = 'white';
                     ctx.fillRect(x, y, w, h);
                     resolve(canvas.toDataURL('image/png'));
                 };
-                img.src = base64;
+                img.src = imgSrc;
             });
         }
-    </script>
+
+        // Durum Kontrolcü (Polling)
+        async function pollStatus(taskId) {
+            // 45 deneme x 2 saniye = 90 saniye bekleme süresi
+            for(let i=0; i<45; i++) { 
+                await new Promise(r => setTimeout(r, 2000));
+                
+                try {
+                    const res = await fetch(`/api/status?taskId=${taskId}`);
+                    if(!res.ok) continue; // Hata varsa tekrar dene
+                    
+                    const data = await res.json();
+                    if(!data.tasklist || !data.tasklist[0]) continue;
+
+                    const task = data.tasklist[0];
+                    
+                    // İşlem bittiyse
+                    if(task.status === 'task_postprocess_end') {
+                        return task.parameters.outputImage;
+                    }
+                    
+                    // Hata verdiyse
+                    if(task.status.includes('fail') || task.status.includes('error')) {
+                        throw new Error('İşlem başarısız: ' + (task.debugerror || task.status));
+                    }
+                } catch(e) {
+                    console.log("Bekleniyor...", e);
+                }
+            }
+            throw new Error('Zaman aşımı. İşlem çok uzun sürdü.');
+        }
     </script>
 </body>
 </html>
